@@ -22,7 +22,7 @@ The data used in this project originates from two sources: the data relating to 
 
 ## Expectation
 
-There are two reasons why an increase on the number of Google searches for "covid symptoms" should more or less coincide with periods with higher positive rates:
+There are two reasons why an increase on the number of Google searches for "covid symptoms" should more or less coincide with periods having higher positive rates:
 
 1. If a person recognises some symptoms that might be covid-related, it is natural to assume that they will check online whether this is the case or not.
 2. Every time there is a surge in the number of cases, the media coverage on the virus will increase, which should lead to an increase of the number of Google searches for these terms.
@@ -68,7 +68,8 @@ covid <- read.csv("owid-covid-data.csv")
 ```
 ```{r}
 covid <- covid %>%
-  select(location, date, positive_rate, people_fully_vaccinated_per_hundred) %>%
+  select(location, date, positive_rate, 
+         people_fully_vaccinated_per_hundred) %>%
   mutate(date = as.Date(date))
 ```
 If one tried to use data from earlier in the pandemic, one would find that the amount of Google searches for "covid symptoms" were disproportionately higher than the amount of Google searches later in the pandemic for periods of time with the same incidence rate. This phenomenon is easily explained by the novelty factor associated to the virus at that point in time. For this reason, I will restrict myself to data relating to the dates from 01/12/2020 (12/01/2020 in American format) onward.
@@ -89,7 +90,8 @@ covid <- covid %>%
   filter(date <= "2021-08-11") %>%
   mutate(people_fully_vaccinated_per_hundred = replace_na(people_fully_vaccinated_per_hundred, 0)) %>%
   group_by(week, location) %>%
-  summarize(avg_positive = mean(positive_rate), vaccination = mean(people_fully_vaccinated_per_hundred)) %>%
+  summarize(avg_positive = mean(positive_rate), 
+            vaccination = mean(people_fully_vaccinated_per_hundred)) %>%
   ungroup()
 ```
 ```{r}
@@ -147,11 +149,14 @@ compare_plot <- ggplot(
   aes(x = week)
 ) +
   geom_bar(stat = "identity", aes(y = avg_positive)) +
-  geom_bar(stat = "identity", fill = "blue", aes(y = hit_vac/coeff), alpha = 0.2) +
+  geom_bar(stat = "identity", fill = "blue", aes(y = hit_vac/coeff), 
+           alpha = 0.2) +
   scale_y_continuous(name = "Average positive rate",
-                    sec.axis = sec_axis(~.*coeff, name = "(1-V(t)) * h(t)")) +
+                    sec.axis = sec_axis(~.*coeff, 
+                                        name = "(1-V(t)) * h(t)")) +
   
-  labs(title = "Average positive rate vs. (1-V(t)) * h(t)", x = "Week number") +
+  labs(title = "Average positive rate vs. (1-V(t)) * h(t)", 
+       x = "Week number") +
   theme_bw()
 compare_plot
 ```
@@ -165,12 +170,16 @@ merged_UK_lag <- merged_UK %>%
 ```{r}
 scatter <- ggplot(merged_UK, aes(x = hit_vac, y = avg_positive)) +
   geom_point(aes(color = avg_positive)) +
-  labs(title = "Average positive rate vs. (1-V(t))*h(t)", y = "Average positive rate", x = "(1-V(t))*h(t)") +
+  labs(title = "Average positive rate vs. (1-V(t))*h(t)", 
+       y = "Average positive rate", x = "(1-V(t))*h(t)") +
   theme_bw()
 scatter
-scatter_lag <- ggplot(merged_UK_lag, aes(x= hit_vac_lag, y = avg_positive)) +
+scatter_lag <- ggplot(merged_UK_lag, aes(x= hit_vac_lag, 
+                                         y = avg_positive)) +
   geom_point(aes(color = avg_positive)) +
-  labs(title = "Average positive rate vs. (1-V(t - 1 week)) * h(t - 1 week)", y = "Average positive rate", x = "(1-V(t - 1 week)) * h(t - 1 week)") +
+  labs(title = "Average positive rate vs. (1-V(t - 1 week)) * h(t - 1 week)", 
+       y = "Average positive rate", 
+       x = "(1-V(t - 1 week)) * h(t - 1 week)") +
   theme_bw()
 scatter_lag
 ```
@@ -223,11 +232,13 @@ pred_plot <- ggplot(
   aes(x = week)
 ) + 
   geom_bar(stat = "identity", aes(y = avg_positive)) +
-  geom_bar(stat = "identity", aes(y = pred), fill = "blue", alpha = 0.3) +
+  geom_bar(stat = "identity", aes(y = pred), fill = "blue", 
+           alpha = 0.3) +
   labs(title = "Comparison between the model predictions and the training set",
        x = "Week number",
        y = "Average positive rate") +
-  geom_errorbar(aes(ymin = pred - ci, ymax = pred + ci), color = "black", alpha = 0.5) +
+  geom_errorbar(aes(ymin = pred - ci, ymax = pred + ci), 
+                color = "black", alpha = 0.5) +
   theme_bw()
 pred_plot
 ```
@@ -300,7 +311,9 @@ pred_US <- ggplot(
 ) +
   geom_bar(stat = "identity", aes(y = avg_positive)) +
   geom_bar(stat = "identity", aes(y = pred), fill = "blue", alpha = .3) +
-  labs(title = "Comparison between the model predictions and US covid data", x = "Week number", y = "Average positive rate") +
+  labs(title = "Comparison between the model predictions and US covid data", 
+       x = "Week number", 
+       y = "Average positive rate") +
   theme_bw()
 pred_US
 ```
@@ -322,8 +335,11 @@ pred_US <- ggplot(
   aes(x = week)
 ) +
   geom_bar(stat = "identity", aes(y = avg_positive)) +
-  geom_bar(stat = "identity", aes(y = pred2), fill = "blue", alpha = .3) +
-  labs(title = "Comparison between the model predictions and US covid data", x = "Week number", y = "Average positive rate") +
+  geom_bar(stat = "identity", aes(y = pred2), 
+           fill = "blue", alpha = .3) +
+  labs(title = "Comparison between the model predictions and US covid data", 
+       x = "Week number", 
+       y = "Average positive rate") +
   theme_bw()
 pred_US
 ```
